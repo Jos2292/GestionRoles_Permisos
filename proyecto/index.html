@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestión de Roles y Permisos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+        .section h2 {
+            color: #34495e;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        input, select, button {
+            margin-top: 8px;
+            padding: 10px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #f39c12;
+            outline: none;
+        }
+        button {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #e67e22;
+        }
+        ul {
+            margin-top: 15px;
+            padding-left: 20px;
+            color: #555;
+        }
+        ul li {
+            margin-bottom: 10px;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #f39c12;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gestión de Roles y Permisos</h1>
+
+    <div class="container">
+
+        <!-- Sección para crear roles -->
+        <div class="section">
+            <h2>Crear Rol</h2>
+            <label>Nombre del Rol:
+                <input type="text" id="roleName" placeholder="Ej: Administrador, Editor, Usuario" />
+            </label>
+            <label>Permisos (separados por comas):
+                <input type="text" id="rolePermissions" placeholder="Ej: crear, editar, eliminar, ver" />
+            </label>
+            <button onclick="createRole()">Crear Rol</button>
+        </div>
+
+        <!-- Sección para asignar roles a usuarios -->
+        <div class="section">
+            <h2>Asignar Rol a Usuario</h2>
+            <label>Nombre del Usuario:
+                <input type="text" id="userName" placeholder="Ej: Juan Perez" />
+            </label>
+            <label>Seleccionar Rol:
+                <select id="rolesDropdown"></select>
+            </label>
+            <button onclick="assignRole()">Asignar Rol</button>
+        </div>
+
+        <!-- Sección para visualizar permisos de usuarios -->
+        <div class="section">
+            <h2>Permisos de Usuarios</h2>
+            <ul id="userPermissionsList"></ul>
+        </div>
+
+    </div>
+
+    <script>
+        // Estructuras de datos
+        const roles = {}; // { rolNombre: [permisos] }
+        const userRoles = {}; // { userName: rolNombre }
+
+        function updateRolesDropdown() {
+            const dropdown = document.getElementById("rolesDropdown");
+            dropdown.innerHTML = ""; // Limpiar opciones
+
+            for (const role in roles) {
+                const option = document.createElement("option");
+                option.value = role;
+                option.textContent = role;
+                dropdown.appendChild(option);
+            }
+        }
+
+        function createRole() {
+            const roleName = document.getElementById("roleName").value.trim();
+            const permissionsInput = document.getElementById("rolePermissions").value.trim();
+
+            if (roleName && permissionsInput) {
+                const permissions = permissionsInput.split(",").map(p => p.trim());
+                roles[roleName] = permissions;
+                updateRolesDropdown();
+                alert(`✅ Rol "${roleName}" creado con permisos: ${permissions.join(", ")}`);
+                document.getElementById("roleName").value = "";
+                document.getElementById("rolePermissions").value = "";
+            } else {
+                alert("⚠️ Por favor, complete el nombre del rol y los permisos.");
+            }
+        }
+
+        function assignRole() {
+            const userName = document.getElementById("userName").value.trim();
+            const selectedRole = document.getElementById("rolesDropdown").value;
+
+            if (userName && selectedRole) {
+                userRoles[userName] = selectedRole;
+                updateUserPermissionsList();
+                alert(`✅ Rol "${selectedRole}" asignado al usuario "${userName}".`);
+                document.getElementById("userName").value = "";
+            } else {
+                alert("⚠️ Por favor, complete el nombre del usuario y seleccione un rol.");
+            }
+        }
+
+        function updateUserPermissionsList() {
+            const userPermissionsList = document.getElementById("userPermissionsList");
+            userPermissionsList.innerHTML = "";
+
+            for (const user in userRoles) {
+                const role = userRoles[user];
+                const permissions = roles[role] || [];
+                const listItem = document.createElement("li");
+                listItem.textContent = `👤 Usuario "${user}" (Rol: "${role}") → Permisos: ${permissions.join(", ")}`;
+                userPermissionsList.appendChild(listItem);
+            }
+        }
+    </script>
+
+</body>
+</html>
